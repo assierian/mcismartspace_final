@@ -14,14 +14,11 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            background-color: #f5f5f5;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             text-align: center;
-            color: #333;
+            color: white;
         }
         .offline-container {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             padding: 2rem;
             margin: 1rem;
             max-width: 500px;
@@ -33,9 +30,11 @@
             margin-bottom: 1.5rem;
         }
         h1 {
-            color: #007bff;
+            color: white;
             margin-bottom: 1rem;
             font-weight: 600;
+            font-size: 2.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
         p {
             line-height: 1.6;
@@ -64,22 +63,27 @@
             100% { opacity: 1; }
         }
         .retry-button {
-            background-color: #007bff;
+            background-color: rgba(255, 255, 255, 0.2);
             color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 10px 20px;
+            border: 2px solid white;
+            border-radius: 25px;
+            padding: 12px 30px;
             font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
         }
         .retry-button:hover {
-            background-color: #0069d9;
+            background-color: white;
+            color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
         .footer {
             margin-top: 2rem;
             font-size: 0.9rem;
-            color: #666;
+            color: rgba(255, 255, 255, 0.8);
         }
     </style>
 </head>
@@ -168,8 +172,20 @@
                 
                 // Small delay to show the success state
                 setTimeout(() => {
-                    // Force reload from server
-                    window.location.href = window.location.origin + '/?reconnected=' + Date.now();
+                    // Try to get the original URL from sessionStorage
+                    const originalUrl = sessionStorage.getItem('originalUrl');
+                    
+                    if (originalUrl && originalUrl !== window.location.href) {
+                        console.log('Redirecting to original URL:', originalUrl);
+                        sessionStorage.removeItem('originalUrl'); // Clean up
+                        window.location.href = originalUrl;
+                    } else if (document.referrer && document.referrer.includes(window.location.hostname)) {
+                        // Fallback to referrer if available
+                        window.location.href = document.referrer;
+                    } else {
+                        // Last resort - go to dashboard or home
+                        window.location.href = window.location.origin + '/dashboard/' || window.location.origin;
+                    }
                 }, 1000);
                 
                 return true;

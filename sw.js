@@ -113,9 +113,27 @@ self.addEventListener('fetch', (event) => {
         
         if (isPageRequest) {
           console.log('Service Worker: Serving offline page');
+          
+          // Store the original URL in sessionStorage for later redirect
+          const originalUrl = event.request.url;
+          
           return caches.match(OFFLINE_URL).then(offlineResponse => {
             if (offlineResponse) {
-              return offlineResponse;
+              // Inject the original URL into the offline page
+              return offlineResponse.text().then(html => {
+                const modifiedHtml = html.replace(
+                  '<script>',
+                  `<script>
+                    // Store original URL for redirect after reconnection
+                    sessionStorage.setItem('originalUrl', '${originalUrl}');
+                  `
+                );
+                return new Response(modifiedHtml, {
+                  status: 200,
+                  statusText: 'OK',
+                  headers: offlineResponse.headers
+                });
+              });
             }
             // Fallback if offline page is not cached
             return new Response(`
