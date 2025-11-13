@@ -84,20 +84,35 @@
     <script>
         // Check for online status changes
         window.addEventListener('online', function() {
-            window.location.reload();
+            // Use the global retryConnection function if available
+            if (window.retryConnection) {
+                window.retryConnection();
+            } else {
+                window.location.reload();
+            }
         });
 
         // Retry button functionality
         document.getElementById('retryButton').addEventListener('click', function() {
-            window.location.reload();
-        });
-
-        // Check connection status every 5 seconds
-        setInterval(function() {
-            if (navigator.onLine) {
+            // Use the global retryConnection function if available
+            if (window.retryConnection) {
+                window.retryConnection();
+            } else {
                 window.location.reload();
             }
-        }, 5000);
+        });
+
+        // Periodic check for connection restoration
+        setInterval(function() {
+            if (navigator.onLine) {
+                // Use the global retryConnection function if available
+                if (window.retryConnection) {
+                    window.retryConnection();
+                } else {
+                    window.location.reload();
+                }
+            }
+        }, 3000); // Check every 3 seconds for faster response
     </script>
 </body>
 </html>
