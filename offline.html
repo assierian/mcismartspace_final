@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCiSmartSpace - Offline</title>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+            text-align: center;
+            color: #333;
+        }
+        .offline-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin: 1rem;
+            max-width: 500px;
+            width: 90%;
+        }
+        .logo {
+            width: 120px;
+            height: auto;
+            margin-bottom: 1.5rem;
+        }
+        h1 {
+            color: #007bff;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        p {
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background-color: #dc3545;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .retry-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .retry-button:hover {
+            background-color: #0069d9;
+        }
+        .footer {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <img src="/public/assets/final_logo.svg" alt="MCiSmartSpace Logo" class="logo">
+        <h1>You're Offline</h1>
+        <p><span class="status-indicator"></span> No internet connection detected.</p>
+        <p>Please check your network connection and try again. Some features may be unavailable while offline.</p>
+        <button class="retry-button" id="retryButton">Try Again</button>
+        <div class="footer">
+            <p>MCiSmartSpace &copy; Meycauayan College</p>
+        </div>
+    </div>
+
+    <script>
+        // Check for online status changes
+        window.addEventListener('online', function() {
+            window.location.reload();
+        });
+
+        // Retry button functionality
+        document.getElementById('retryButton').addEventListener('click', function() {
+            window.location.reload();
+        });
+
+        // Check connection status every 5 seconds
+        setInterval(function() {
+            if (navigator.onLine) {
+                window.location.reload();
+            }
+        }, 5000);
+    </script>
+</body>
+</html>

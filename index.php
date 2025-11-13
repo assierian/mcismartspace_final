@@ -182,6 +182,7 @@ require_once __DIR__ . '/middleware/error_handler.php';
 
     
     <script src="./public/js/alert.js"></script>
+    <script src="./public/js/connection-status.js"></script>
     
     <!-- PWA Service Worker Registration -->
     <script>

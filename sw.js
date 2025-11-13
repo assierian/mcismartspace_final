@@ -1,4 +1,5 @@
-const CACHE_NAME = 'mcismartspace-v1.0.0';
+const CACHE_NAME = 'mcismartspace-v1.0.1';
+const OFFLINE_URL = '/offline.html';
 const urlsToCache = [
   '/',
   '/index.php',
@@ -7,8 +8,21 @@ const urlsToCache = [
   '/public/assets/final_logo.svg',
   '/public/assets/logo.webp',
   '/partials/terms.css',
-  '/manifest.json'
+  '/manifest.json',
+  OFFLINE_URL
 ];
+
+// Track online status
+let isOnline = true;
+self.addEventListener('online', () => {
+  isOnline = true;
+  console.log('Service Worker: App is online');
+});
+
+self.addEventListener('offline', () => {
+  isOnline = false;
+  console.log('Service Worker: App is offline');
+});
 
 // Install event - cache resources
 self.addEventListener('install', (event) => {
@@ -90,8 +104,19 @@ self.addEventListener('fetch', (event) => {
       })
       .catch((error) => {
         console.error('Service Worker: Fetch failed', error);
-        // You could return a fallback page here
-        return new Response('Offline - Please check your connection', {
+        
+        // Check if the request is for a page (HTML)
+        const isPageRequest = event.request.mode === 'navigate' || 
+                             (event.request.method === 'GET' && 
+                              event.request.headers.get('accept').includes('text/html'));
+        
+        if (isPageRequest) {
+          console.log('Service Worker: Serving offline page');
+          return caches.match(OFFLINE_URL);
+        }
+        
+        // For non-HTML requests, return a simple error message
+        return new Response('Offline - Resource unavailable', {
           status: 503,
           statusText: 'Service Unavailable',
           headers: new Headers({
