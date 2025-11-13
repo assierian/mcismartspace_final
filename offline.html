@@ -48,6 +48,20 @@
             background-color: #dc3545;
             border-radius: 50%;
             margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+        .status-indicator.checking {
+            background-color: #ffc107;
+            animation: pulse 1s infinite;
+        }
+        .status-indicator.online {
+            background-color: #28a745;
+            animation: none;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
         }
         .retry-button {
             background-color: #007bff;
@@ -71,9 +85,9 @@
 </head>
 <body>
     <div class="offline-container">
-        <img src="/public/assets/final_logo.svg" alt="MCiSmartSpace Logo" class="logo">
+        <img src="/public/assets/logo.webp" alt="MCiSmartSpace Logo" class="logo">
         <h1>You're Offline</h1>
-        <p><span class="status-indicator"></span> No internet connection detected.</p>
+        <p><span class="status-indicator"></span> <span id="statusText">No internet connection detected.</span></p>
         <p>Please check your network connection and try again. Some features may be unavailable while offline.</p>
         <button class="retry-button" id="retryButton">Try Again</button>
         <div class="footer">
@@ -82,37 +96,131 @@
     </div>
 
     <script>
-        // Check for online status changes
-        window.addEventListener('online', function() {
-            // Use the global retryConnection function if available
-            if (window.retryConnection) {
-                window.retryConnection();
-            } else {
-                window.location.reload();
+        console.log('🔄 Offline page loaded - starting connection monitoring...');
+        
+        let wasOffline = true; // We're on the offline page, so we start as offline
+        let checkInterval;
+        
+        // Function to update UI status
+        function updateStatusIndicator(status) {
+            const indicator = document.querySelector('.status-indicator');
+            const statusText = document.querySelector('#statusText');
+            
+            indicator.className = 'status-indicator';
+            
+            switch(status) {
+                case 'offline':
+                    indicator.classList.add('offline');
+                    statusText.textContent = 'No internet connection detected.';
+                    break;
+                case 'checking':
+                    indicator.classList.add('checking');
+                    statusText.textContent = 'Checking connection...';
+                    break;
+                case 'online':
+                    indicator.classList.add('online');
+                    statusText.textContent = 'Connection restored! Reloading...';
+                    break;
             }
+        }
+        
+        // Function to test actual server connectivity
+        async function testServerConnection() {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3000);
+                
+                const response = await fetch('/connection-test.php?nocache=' + Date.now(), {
+                    method: 'HEAD',
+                    cache: 'no-cache',
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                return response.ok || response.type === 'opaque';
+            } catch (error) {
+                console.log('❌ Server test failed:', error.message);
+                return false;
+            }
+        }
+        
+        // Function to check if we're really back online
+        async function checkConnectionAndReload() {
+            updateStatusIndicator('checking');
+            
+            const browserOnline = navigator.onLine;
+            const serverReachable = await testServerConnection();
+            
+            console.log('🌐 Connection check:', {
+                browserOnline,
+                serverReachable,
+                timestamp: new Date().toLocaleTimeString()
+            });
+            
+            if (browserOnline && serverReachable) {
+                console.log('✅ Connection fully restored! Reloading...');
+                updateStatusIndicator('online');
+                
+                // Clear the interval before reloading
+                if (checkInterval) {
+                    clearInterval(checkInterval);
+                }
+                
+                // Small delay to show the success state
+                setTimeout(() => {
+                    // Force reload from server
+                    window.location.href = window.location.origin + '/?reconnected=' + Date.now();
+                }, 1000);
+                
+                return true;
+            } else {
+                updateStatusIndicator('offline');
+            }
+            return false;
+        }
+        
+        // Start aggressive connection monitoring
+        function startMonitoring() {
+            console.log('🚀 Starting aggressive connection monitoring...');
+            
+            // Check immediately
+            checkConnectionAndReload();
+            
+            // Check every 3 seconds
+            checkInterval = setInterval(checkConnectionAndReload, 3000);
+        }
+        
+        // Listen for browser online event
+        window.addEventListener('online', function() {
+            console.log('📱 Browser reports online - verifying server...');
+            setTimeout(checkConnectionAndReload, 500); // Small delay to ensure connection is stable
         });
-
+        
         // Retry button functionality
         document.getElementById('retryButton').addEventListener('click', function() {
-            // Use the global retryConnection function if available
-            if (window.retryConnection) {
-                window.retryConnection();
-            } else {
-                window.location.reload();
+            console.log('🔄 Manual retry clicked');
+            checkConnectionAndReload();
+        });
+        
+        // Check when page becomes visible (user switches back to tab)
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                console.log('👀 Page became visible - checking connection...');
+                checkConnectionAndReload();
             }
         });
-
-        // Periodic check for connection restoration
-        setInterval(function() {
-            if (navigator.onLine) {
-                // Use the global retryConnection function if available
-                if (window.retryConnection) {
-                    window.retryConnection();
-                } else {
-                    window.location.reload();
-                }
-            }
-        }, 3000); // Check every 3 seconds for faster response
+        
+        // Check when window gains focus
+        window.addEventListener('focus', function() {
+            console.log('🎯 Window focused - checking connection...');
+            checkConnectionAndReload();
+        });
+        
+        // Start monitoring when page loads
+        startMonitoring();
+        
+        // Also expose a global function for manual testing
+        window.forceConnectionCheck = checkConnectionAndReload;
     </script>
 </body>
 </html>

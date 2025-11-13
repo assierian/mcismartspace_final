@@ -108,11 +108,51 @@ self.addEventListener('fetch', (event) => {
         // Check if the request is for a page (HTML)
         const isPageRequest = event.request.mode === 'navigate' || 
                              (event.request.method === 'GET' && 
+                              event.request.headers.get('accept') && 
                               event.request.headers.get('accept').includes('text/html'));
         
         if (isPageRequest) {
           console.log('Service Worker: Serving offline page');
-          return caches.match(OFFLINE_URL);
+          return caches.match(OFFLINE_URL).then(offlineResponse => {
+            if (offlineResponse) {
+              return offlineResponse;
+            }
+            // Fallback if offline page is not cached
+            return new Response(`
+              <!DOCTYPE html>
+              <html>
+              <head>
+                <title>Offline - MCiSmartSpace</title>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                  body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+                  .container { max-width: 400px; margin: 0 auto; }
+                  button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+                </style>
+              </head>
+              <body>
+                <div class="container">
+                  <h1>You're Offline</h1>
+                  <p>Please check your connection and try again.</p>
+                  <button onclick="window.location.reload()">Retry</button>
+                </div>
+                <script>
+                  setInterval(() => {
+                    if (navigator.onLine) {
+                      window.location.reload();
+                    }
+                  }, 3000);
+                </script>
+              </body>
+              </html>
+            `, {
+              status: 200,
+              statusText: 'OK',
+              headers: new Headers({
+                'Content-Type': 'text/html'
+              })
+            });
+          });
         }
         
         // For non-HTML requests, return a simple error message
