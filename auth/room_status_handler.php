@@ -22,9 +22,9 @@ function connectToDatabase()
 
         // Try to connect with SSL first
         if (!$conn->real_connect(
-            "smartspace.mysql.database.azure.com", 
-            "adminuser", 
-            "SmartDb2025!", 
+            "mcismartspacedb.mysql.database.azure.com", 
+            "mcismartspace", 
+            "Mcismartspace42", 
             "smartspace",
             3306,
             NULL,
@@ -33,9 +33,9 @@ function connectToDatabase()
             // If SSL fails, try without SSL as fallback
             $conn = mysqli_init();
             $conn->real_connect(
-                "smartspace.mysql.database.azure.com", 
-                "adminuser", 
-                "SmartDb2025!", 
+                "mcismartspacedb.mysql.database.azure.com", 
+                "mcismartspace", 
+                "Mcismartspace42", 
                 "smartspace",
                 3306
             );

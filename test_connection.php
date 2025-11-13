@@ -14,9 +14,9 @@ if (file_exists($sslCert)) {
 }
 
 // Connection settings
-$host = 'smartspace.mysql.database.azure.com';
-$user = 'adminuser';
-$pass = 'SmartDb2025!';
+$host = 'mcismartspacedb.mysql.database.azure.com';
+$user = 'mcismartspace';
+$pass = 'Mcismartspace42';
 $name = 'smartspace';
 $port = 3306;
 
