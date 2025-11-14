@@ -106,6 +106,13 @@ class SessionManager {
         $_SESSION['role'] = $userData['role'];
         $_SESSION['email'] = $userData['email'];
         $_SESSION['name'] = $userData['name'];
+        
+        // Store user type for additional security validation
+        if (isset($userData['user_type'])) {
+            $_SESSION['user_type'] = $userData['user_type'];
+        }
+        
+        // Store name components if available
         if (isset($userData['firstname'])) {
             $_SESSION['firstname'] = $userData['firstname'];
         }

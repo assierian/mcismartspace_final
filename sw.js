@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mcismartspace-v1.0.1';
+const CACHE_NAME = 'mcismartspace-v1.0.2'; // Increment version to force cache refresh
 const OFFLINE_URL = '/offline.html';
 const urlsToCache = [
   '/',
@@ -74,7 +74,32 @@ self.addEventListener('fetch', (event) => {
   if (!event.request.url.startsWith('http')) {
     return;
   }
+  
+  // Skip caching user-specific pages and authenticated content
+  const url = new URL(event.request.url);
+  const skipCachingPaths = [
+    '/users/', 
+    '/department-admin/', 
+    '/registrar/',
+    '/auth/',
+    'partials/topnav.php'
+  ];
+  
+  const shouldNotCache = skipCachingPaths.some(path => url.pathname.includes(path));
+  
+  // For user-specific pages, always go to network first
+  if (shouldNotCache) {
+    event.respondWith(
+      fetch(event.request)
+        .catch(error => {
+          console.error('Service Worker: Fetch failed', error);
+          return caches.match(OFFLINE_URL);
+        })
+    );
+    return;
+  }
 
+  // For other resources, check cache first then network
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
@@ -90,8 +115,14 @@ self.addEventListener('fetch', (event) => {
           if (!response || response.status !== 200 || response.type !== 'basic') {
             return response;
           }
+          
+          // Don't cache HTML pages that might contain dynamic content
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('text/html')) {
+            return response;
+          }
 
-          // Clone the response for caching
+          // Clone the response for caching static resources
           const responseToCache = response.clone();
 
           caches.open(CACHE_NAME)

@@ -1,4 +1,11 @@
+<?php
+// Add no-cache headers for authenticated content
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+header('Expires: 0');
+?>
 <!-- top navigation -->
+<script src="/public/js/cache-manager.js"></script>
 <div class="top_nav">
     <div class="nav_menu">
         <div class="nav toggle">
@@ -16,7 +23,7 @@
             <ul class=" navbar-right">
                 <li class="nav-item dropdown open" style="padding-left: 15px;">
                     <a href="javascript:;" class="user-profile dropdown-toggle" aria-haspopup="true" id="navbarDropdown" data-toggle="dropdown" aria-expanded="false">
-                        <span>Hello, <?php echo $_SESSION['name']; ?></span>
+                        <span>Hello, <?php echo $_SESSION['name'] ?? 'Unknown'; error_log(date('[Y-m-d H:i:s] ') . 'Displaying name from session: ' . ($_SESSION['name'] ?? 'Unknown') . ' for email: ' . ($_SESSION['email'] ?? 'Unknown') . PHP_EOL, 3, __DIR__ . '/../debug.log'); ?></span>
                     </a>
                     <div class="dropdown-menu dropdown-usermenu pull-right" aria-labelledby="navbarDropdown">
 
