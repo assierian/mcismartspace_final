@@ -12,6 +12,7 @@ checkAccess(['Student', 'Teacher']);
     <!-- Icons and Manifest -->
     <link rel="icon" href="../public/assets/logo.webp" type="image/webp" />
     <link rel="apple-touch-icon" href="../public/assets/logo.webp">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="qr/qr.css">
     <link rel="stylesheet" href="qr/modal.css">
 
@@ -89,6 +90,9 @@ checkAccess(['Student', 'Teacher']);
                                     <option value="">-- Select Building --</option>
                                 </select>
                                 <div class="validation-feedback" id="building-feedback"></div>
+                            </div>
+                            <div class="form-text text-muted small mt-1">
+                                <i class="fa fa-info-circle"></i> Showing buildings relevant to your department and common facilities
                             </div>
                         </div>
 

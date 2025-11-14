@@ -53,13 +53,13 @@ if ($row = $result->fetch_assoc()) {
     $student_count = $row['count'];
 }
 
-// Get room count - direct count from buildings and rooms
+// Get room count - direct count from buildings and rooms (including Common department)
 $room_count = 0;
 $stmt = $conn->prepare("
     SELECT COUNT(*) as count 
     FROM rooms r
     JOIN buildings b ON r.building_id = b.id
-    WHERE b.department = ?
+    WHERE b.department = ? OR b.department = 'Common'
 ");
 $stmt->bind_param("s", $department);
 $stmt->execute();
@@ -68,14 +68,14 @@ if ($row = $result->fetch_assoc()) {
     $room_count = $row['count'];
 }
 
-// Get equipment count - direct count from equipments in rooms of the department
+// Get equipment count - direct count from equipments in rooms of the department (including Common department)
 $equipment_count = 0;
 $stmt = $conn->prepare("
     SELECT COUNT(eu.unit_id) as count 
     FROM equipment_units eu
     JOIN rooms r ON eu.room_id = r.id
     JOIN buildings b ON r.building_id = b.id
-    WHERE b.department = ?
+    WHERE b.department = ? OR b.department = 'Common'
 ");
 $stmt->bind_param("s", $department);
 $stmt->execute();
@@ -122,14 +122,14 @@ while ($row = $result->fetch_assoc()) {
     $unresolved_issues += $row['count'];
 }
 
-// Get equipment status statistics
+// Get equipment status statistics (including Common department)
 $equipment_stats = [];
 $stmt = $conn->prepare("
     SELECT eu.status, COUNT(*) as count 
     FROM equipment_units eu
     JOIN rooms r ON eu.room_id = r.id
     JOIN buildings b ON r.building_id = b.id
-    WHERE b.department = ?
+    WHERE b.department = ? OR b.department = 'Common'
     GROUP BY eu.status
 ");
 $stmt->bind_param("s", $department);
@@ -139,7 +139,7 @@ while ($row = $result->fetch_assoc()) {
     $equipment_stats[$row['status']] = $row['count'];
 }
 
-// Get equipment issues statistics
+// Get equipment issues statistics (including Common department)
 $issue_stats = [];
 $stmt = $conn->prepare("
     SELECT ei.status, COUNT(*) as count 
@@ -147,7 +147,7 @@ $stmt = $conn->prepare("
     JOIN equipment_units eu ON ei.unit_id = eu.unit_id
     JOIN rooms r ON eu.room_id = r.id
     JOIN buildings b ON r.building_id = b.id
-    WHERE b.department = ?
+    WHERE b.department = ? OR b.department = 'Common'
     GROUP BY ei.status
 ");
 $stmt->bind_param("s", $department);
@@ -157,7 +157,7 @@ while ($row = $result->fetch_assoc()) {
     $issue_stats[$row['status']] = $row['count'];
 }
 
-// Get monthly room request trends (last 6 months)
+// Get monthly room request trends (last 6 months) (including Common department)
 $monthly_stats = [];
 $stmt = $conn->prepare("
     SELECT 
@@ -166,7 +166,7 @@ $stmt = $conn->prepare("
     FROM room_requests r
     JOIN rooms rm ON r.RoomID = rm.id
     JOIN buildings b ON rm.building_id = b.id
-    WHERE b.department = ?
+    WHERE (b.department = ? OR b.department = 'Common')
     AND RequestDate >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
     GROUP BY DATE_FORMAT(RequestDate, '%Y-%m')
     ORDER BY month ASC
@@ -178,7 +178,7 @@ while ($row = $result->fetch_assoc()) {
     $monthly_stats[$row['month']] = $row['count'];
 }
 
-// Get recent equipment issues
+// Get recent equipment issues (including Common department)
 $recent_issues = [];
 $stmt = $conn->prepare("
     SELECT ei.id, e.name as equipment_name, ei.issue_type, ei.status, ei.reported_at
@@ -187,7 +187,7 @@ $stmt = $conn->prepare("
     JOIN equipment e ON eu.equipment_id = e.id
     JOIN rooms r ON eu.room_id = r.id
     JOIN buildings b ON r.building_id = b.id
-    WHERE b.department = ?
+    WHERE b.department = ? OR b.department = 'Common'
     ORDER BY ei.reported_at DESC
     LIMIT 5
 ");
@@ -372,7 +372,7 @@ while ($row = $result->fetch_assoc()) {
     $recent_room_usage[] = $row;
 }
 
-// Get rooms with most equipment issues (only unresolved issues)
+// Get rooms with most equipment issues (only unresolved issues) (including Common department)
 $rooms_with_most_issues = [];
 $stmt = $conn->prepare("
     SELECT 
@@ -384,7 +384,7 @@ $stmt = $conn->prepare("
     JOIN equipment_units eu ON ei.unit_id = eu.unit_id
     JOIN rooms r ON eu.room_id = r.id
     JOIN buildings b ON r.building_id = b.id
-    WHERE b.department = ?
+    WHERE (b.department = ? OR b.department = 'Common')
     AND ei.status IN ('pending', 'in_progress')
     GROUP BY r.id, r.room_name, b.building_name
     HAVING issue_count > 0
@@ -398,7 +398,7 @@ while ($row = $result->fetch_assoc()) {
     $rooms_with_most_issues[] = $row;
 }
 
-// Get most requested rooms
+// Get most requested rooms (including Common department)
 $most_requested_rooms = [];
 $stmt = $conn->prepare("
     SELECT 
@@ -410,7 +410,7 @@ $stmt = $conn->prepare("
     FROM room_requests rr
     JOIN rooms r ON rr.RoomID = r.id
     JOIN buildings b ON r.building_id = b.id
-    WHERE b.department = ?
+    WHERE b.department = ? OR b.department = 'Common'
     GROUP BY r.id, r.room_name, b.building_name
     ORDER BY request_count DESC
     LIMIT 5

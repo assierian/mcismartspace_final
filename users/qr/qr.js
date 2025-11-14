@@ -1,4 +1,34 @@
 document.addEventListener('DOMContentLoaded', function () {
+  // Global variable to store user's department
+  let cachedUserDepartment = '';
+  
+  // Function to get the user's department
+  function getUserDepartment() {
+    return cachedUserDepartment;
+  }
+  
+  // Fetch the user's department from the server
+  function fetchUserDepartment() {
+    return fetch('api/get_user_department.php')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success && data.department) {
+          cachedUserDepartment = data.department;
+          console.log('User department loaded:', cachedUserDepartment);
+        } else {
+          console.warn('Could not load user department');
+        }
+        return data;
+      })
+      .catch(error => {
+        console.error('Error fetching user department:', error);
+        return { success: false, department: '' };
+      });
+  }
+  
+  // Fetch user department when page loads
+  fetchUserDepartment();
+
   // Tab switching
   const tabs = document.querySelectorAll('.option-tab');
   const contents = document.querySelectorAll('.option-content');
@@ -374,20 +404,64 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Load building options
   function loadBuildingOptions() {
-    fetch('api/get_equipment_data.php?action=buildings')
+    // Show loading indicator
+    buildingSelect.innerHTML = '<option value="">Loading buildings...</option>';
+    
+    // First ensure we have the user's department, then load buildings
+    fetchUserDepartment()
+      .then(() => fetch('api/get_equipment_data.php?action=buildings'))
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
           buildingSelect.innerHTML =
             '<option value="">-- Select Building --</option>';
 
+          // Get user's department if available
+          let userDepartment = '';
+          if (typeof getUserDepartment === 'function') {
+            userDepartment = getUserDepartment();
+          }
+
           data.data.forEach((building) => {
             const option = document.createElement('option');
             option.value = building.id;
-            option.textContent = building.building_name;
-            option.setAttribute('data-department', building.department);
+            
+            // Add visual indicators for department buildings vs common buildings
+            const department = building.department;
+            const isCommon = department === 'Common' || building.building_name.includes('Sports');
+            
+            // Format option text with department tag
+            if (isCommon) {
+              // For common buildings
+              option.textContent = `${building.building_name} [Common]`;
+              option.classList.add('common-building');
+            } else if (department === userDepartment) {
+              // For department-specific buildings
+              option.textContent = `${building.building_name} [Your Department]`;
+              option.classList.add('your-department');
+            } else {
+              // For other department buildings (should not appear in filtered list)
+              option.textContent = `${building.building_name} [${department}]`;
+            }
+            
+            option.setAttribute('data-department', department);
             buildingSelect.appendChild(option);
           });
+
+          // Add custom styles to differentiate building types
+          const styleEl = document.createElement('style');
+          styleEl.textContent = `
+            .common-building {
+              color: #1B4332;
+              font-weight: normal;
+            }
+            .your-department {
+              color: #0F4C3A;
+              font-weight: bold;
+            }
+          `;
+          document.head.appendChild(styleEl);
+          
         } else {
           showError('Failed to load building options');
         }

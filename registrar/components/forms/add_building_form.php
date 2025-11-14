@@ -24,7 +24,7 @@
                                         <select name="department" required>
                                             <option value="">Select Department</option>
                                             <?php
-                                            $departments = ['Accountancy', 'Business Administration', 'Hospitality Management', 'Education and Arts', 'Criminal Justice'];
+                                            $departments = ['Accountancy', 'Business Administration', 'Hospitality Management', 'Education and Arts', 'Criminal Justice', 'Common'];
                                             foreach ($departments as $dept) {
                                                 echo '<option value="' . htmlspecialchars($dept) . '">' . htmlspecialchars($dept) . '</option>';
                                             }

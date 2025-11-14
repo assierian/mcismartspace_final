@@ -69,7 +69,7 @@ function loadDashboardData() {
         }
     }
 
-    // Get department statistics
+    // Get department statistics (exclude Athletics, make sure Common is included)
     $data['department_stats'] = [];
     $sql = "SELECT 
                 b.department, 
@@ -80,6 +80,7 @@ function loadDashboardData() {
                 buildings b
             LEFT JOIN 
                 rooms r ON b.id = r.building_id
+            WHERE b.department != 'Athletics'
             GROUP BY 
                 b.department
             ORDER BY 
@@ -105,7 +106,7 @@ function loadDashboardData() {
         $data['equipment_categories'][$row['category']] = $row['count'];
     }
 
-    // Get the 5 most recent equipment issues
+    // Get the 5 most recent equipment issues (exclude Athletics)
     $data['recent_issues'] = [];
     $sql = "SELECT 
                 ei.id, 
@@ -126,6 +127,7 @@ function loadDashboardData() {
                 rooms rm ON re.room_id = rm.id
             LEFT JOIN 
                 buildings b ON rm.building_id = b.id
+            WHERE b.department != 'Athletics' OR b.department IS NULL
             ORDER BY 
                 ei.reported_at DESC
             LIMIT 5";
@@ -134,7 +136,7 @@ function loadDashboardData() {
         $data['recent_issues'][] = $row;
     }
 
-    // Get buildings with the most rooms
+    // Get buildings with the most rooms (exclude Athletics)
     $data['largest_buildings'] = [];
     $sql = "SELECT 
                 b.id, 
@@ -146,6 +148,7 @@ function loadDashboardData() {
                 buildings b
             LEFT JOIN 
                 rooms r ON b.id = r.building_id
+            WHERE b.department != 'Athletics'
             GROUP BY 
                 b.id, b.building_name, b.department
             ORDER BY 
@@ -156,7 +159,7 @@ function loadDashboardData() {
         $data['largest_buildings'][] = $row;
     }
 
-    // Get rooms with the highest capacity
+    // Get rooms with the highest capacity (exclude Athletics)
     $data['high_capacity_rooms'] = [];
     $sql = "SELECT 
                 r.id, 
@@ -169,6 +172,7 @@ function loadDashboardData() {
                 rooms r
             JOIN 
                 buildings b ON r.building_id = b.id
+            WHERE b.department != 'Athletics'
             ORDER BY 
                 r.capacity DESC
             LIMIT 5";
@@ -177,7 +181,7 @@ function loadDashboardData() {
         $data['high_capacity_rooms'][] = $row;
     }
 
-    // Count rooms by department
+    // Count rooms by department (exclude Athletics, make sure Common is included)
     $data['rooms_by_department'] = [];
     $sql = "SELECT 
                 b.department, 
@@ -186,6 +190,7 @@ function loadDashboardData() {
                 buildings b
             LEFT JOIN 
                 rooms r ON b.id = r.building_id
+            WHERE b.department != 'Athletics'
             GROUP BY 
                 b.department
             ORDER BY 

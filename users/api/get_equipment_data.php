@@ -23,9 +23,50 @@ try {
             break;
 
         case 'buildings':
-            // Get all buildings
-            $sql = "SELECT id, building_name, department FROM buildings ORDER BY building_name";
-            $result = $conn->query($sql);
+            // Get buildings filtered by user's department or common buildings
+            $user_department = '';
+            $user_type = $_SESSION['user_type'] ?? '';
+            
+            // Get the user's department based on user_type
+            if ($user_type == 'student') {
+                $user_id = $_SESSION['user_id'] ?? 0;
+                $dept_sql = "SELECT Department FROM student WHERE StudentID = ?";
+                $dept_stmt = $conn->prepare($dept_sql);
+                $dept_stmt->bind_param("i", $user_id);
+                $dept_stmt->execute();
+                $dept_result = $dept_stmt->get_result();
+                if ($dept_row = $dept_result->fetch_assoc()) {
+                    $user_department = $dept_row['Department'];
+                }
+                $dept_stmt->close();
+            } elseif ($user_type == 'teacher') {
+                $user_id = $_SESSION['user_id'] ?? 0;
+                $dept_sql = "SELECT Department FROM teacher WHERE TeacherID = ?";
+                $dept_stmt = $conn->prepare($dept_sql);
+                $dept_stmt->bind_param("i", $user_id);
+                $dept_stmt->execute();
+                $dept_result = $dept_stmt->get_result();
+                if ($dept_row = $dept_result->fetch_assoc()) {
+                    $user_department = $dept_row['Department'];
+                }
+                $dept_stmt->close();
+            }
+            
+            // Prepare SQL to get department-specific buildings and common buildings (like Sports Complex)
+            if (!empty($user_department)) {
+                // Get buildings for user's department and common buildings like "Sports Complex"
+                $sql = "SELECT id, building_name, department FROM buildings 
+                        WHERE department = ? OR department = 'Common' OR building_name LIKE '%Sports%' 
+                        ORDER BY building_name";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("s", $user_department);
+                $stmt->execute();
+                $result = $stmt->get_result();
+            } else {
+                // Fallback: Get all buildings if department isn't available
+                $sql = "SELECT id, building_name, department FROM buildings ORDER BY building_name";
+                $result = $conn->query($sql);
+            }
             
             $buildings = [];
             while ($row = $result->fetch_assoc()) {
@@ -33,6 +74,7 @@ try {
             }
             
             echo json_encode(['success' => true, 'data' => $buildings]);
+            if (isset($stmt)) $stmt->close();
             break;
 
         case 'rooms':

@@ -11,7 +11,7 @@ INSERT INTO `buildings` (`id`, `building_name`, `department`, `number_of_floors`
 (3, 'Hospitality Management Building', 'Hospitality Management', 3, '2025-05-22 12:05:20'),
 (4, 'Education and Arts Building', 'Education and Arts', 4, '2025-05-22 12:05:20'),
 (5, 'Criminal Justice Building', 'Criminal Justice', 3, '2025-05-22 12:05:20'),
-(6, 'Sports Complex', 'Athletics', 1, '2025-08-18 21:17:52');
+(6, 'Sports Complex', 'Common', 1, '2025-08-18 21:17:52');
 
 INSERT INTO system_settings (setting_key, setting_value, updated_at) VALUES
 ('room_status_last_check', '2025-03-31 15:47:03', '2025-03-31 07:47:03');
@@ -62,8 +62,7 @@ INSERT INTO `equipment` (`id`, `name`, `description`, `category`, `created_at`) 
 (6, 'Speaker', 'Audio speaker system for sound output', 'Audio Equipment', '2025-05-22 12:05:20'),
 (7, 'Microphone', 'Handheld microphone for voice amplification', 'Audio Equipment', '2025-05-22 12:05:20'),
 (8, 'Lapel', 'Clip-on lapel microphone for presentations', 'Audio Equipment', '2025-05-22 12:05:20'),
-(9, 'HDMI Cable', 'High-Definition Multimedia Interface cable for audio/video connection', 'Accessories', '2025-05-22 12:05:20'),
-(10, 'Lapel', 'lapel lapel', 'Teaching Materials', '2025-08-25 03:07:09');
+(9, 'HDMI Cable', 'High-Definition Multimedia Interface cable for audio/video connection', 'Accessories', '2025-05-22 12:05:20');
 
 
 -- ============================
