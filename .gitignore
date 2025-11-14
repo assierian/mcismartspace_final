@@ -1,5 +1,3 @@
-# Sensitive configuration files
-department-admin/config/email_config.php
 
 # Environment files
 .env
