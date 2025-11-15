@@ -12,7 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $adminLastName = $_SESSION['lastname'] ?? null;
 
         // Fetch the request details to check for conflicts
-        $sql = "SELECT RoomID, StartTime, EndTime FROM room_requests WHERE RequestID = ?";
+        $sql = "SELECT RoomID, ReservationDate, StartTime, EndTime FROM room_requests WHERE RequestID = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $requestId);
         $stmt->execute();
@@ -22,6 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($request) {
             $roomId = $request['RoomID'];
+            $reservationDate = $request['ReservationDate'];
             $startTime = $request['StartTime'];
             $endTime = $request['EndTime'];
 
@@ -44,6 +45,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $maintenanceStmt->close();
 
             // Check for overlapping approved requests
+            // Only consider approved reservations for the same room AND same reservation date
+            // Overlap condition: StartTime < new End AND EndTime > new Start
             $sql = "SELECT rr.*, CASE 
                         WHEN rr.StudentID IS NOT NULL THEN CONCAT(s.FirstName, ' ', s.LastName)
                         WHEN rr.TeacherID IS NOT NULL THEN CONCAT(t.FirstName, ' ', t.LastName)
@@ -55,12 +58,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     FROM room_requests rr
                     LEFT JOIN student s ON rr.StudentID = s.StudentID
                     LEFT JOIN teacher t ON rr.TeacherID = t.TeacherID
-                    WHERE RoomID = ?
-                    AND Status = 'approved'
-                    AND ((StartTime < ? AND EndTime > ?) OR (StartTime < ? AND EndTime > ?))
-                    AND RequestID != ?"; // Exclude the current request
+                    WHERE rr.RoomID = ?
+                    AND rr.ReservationDate = ?
+                    AND rr.Status = 'approved'
+                    AND (rr.StartTime < ? AND rr.EndTime > ?)
+                    AND rr.RequestID != ?"; // Exclude the current request
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("issssi", $roomId, $endTime, $startTime, $startTime, $endTime, $requestId);
+            $stmt->bind_param("isssi", $roomId, $reservationDate, $endTime, $startTime, $requestId);
             $stmt->execute();
             $conflictResult = $stmt->get_result();
 
