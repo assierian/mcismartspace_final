@@ -33,13 +33,13 @@
             <table id="activityTable" class="table is-fullwidth is-striped">
                 <thead>
                     <tr class="titles">
-                        <th>User</th>
-                        <th>Room</th>
-                        <th>Activity</th>
-                        <th>Date & Time</th>
-                        <th>Status</th>
-                        <th>Last Updated</th>
-                        <th>Action</th>
+                        <th title="Name and role of the requester">User</th>
+                        <th title="Room name and building where the reservation is requested">Room</th>
+                        <th title="Name of the activity or event for the reservation">Activity</th>
+                        <th title="Reservation date and time range">Date & Time</th>
+                        <th title="Usage status: Upcoming, Active Now, or Completed">Status</th>
+                        <th title="Time when the reservation was submitted. If approved, the approver is shown below">Requested (Approved by)</th>
+                        <th title="View details for this reservation">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -111,7 +111,7 @@
                                         <?php echo $statusLabel; ?>
                                     </span>
                                 </td>
-                                <td data-label="Last Updated">
+                                <td data-label="Requested (Approved by)">
                                     <?php 
                                         echo time_elapsed_string($row['RequestDate']);
                                         if ($status == 'approved' && !empty($row['admin_first_name'])) {

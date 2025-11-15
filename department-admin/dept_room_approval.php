@@ -57,6 +57,18 @@ require 'includes/approve-reject.php';
             document.getElementById('detailsModal').style.display = 'block';
         }
     </script>
+    <?php if (isset($_GET['view']) && is_numeric($_GET['view'])): ?>
+    <script>
+        // If a specific request id is passed via ?view=, open its details on load
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                showRequestDetails(<?php echo intval($_GET['view']); ?>);
+            } catch (e) {
+                console.error('Failed to open request details for view param:', e);
+            }
+        });
+    </script>
+    <?php endif; ?>
     <script type="text/javascript" src="../public/js/admin_scripts/room_approval.js"></script>
 
 </body>
