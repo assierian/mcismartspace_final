@@ -59,7 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
-        if ($password === $row['Reg_Password']) {
+        if (password_verify($password, $row['Reg_Password'])) {
             $loginSuccess = true;
             $userData = [
                 'user_id' => $row['regid'],
