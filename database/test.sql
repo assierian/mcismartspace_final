@@ -3,7 +3,7 @@
 -- =========================
 
 INSERT INTO `registrar` (`regid`, `Reg_Email`, `Reg_Password`, `RoleID`) VALUES
-(1, 'registrar@gmail.com', '$2y$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcg7b3XeKeUxWdeS86E36P3wZ7i', 1);
+(1, 'registrar@gmail.com', '$2y$10$LSGn7F8LzVKAnytJNCR/6.xuXwylx2Izu2YUbMZb6CICH9XXn.wFW', 1);
 
 INSERT INTO `buildings` (`id`, `building_name`, `department`, `number_of_floors`, `created_at`) VALUES
 (1, 'Accountancy Building', 'Accountancy', 4, '2025-05-22 12:05:20'),
