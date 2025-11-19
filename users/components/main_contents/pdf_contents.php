@@ -11,7 +11,6 @@
         <div class="subtitle">City of Meycauayan Bulacan</div>
         <div class="office-title">Deans' Office</div>
         <div class="form-title">Requisition Form</div>
-        <div class="form-title">(Room for Student Activity)</div>
     </div>
 
     <div class="date-line">
