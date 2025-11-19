@@ -60,6 +60,10 @@ function db(): mysqli
     }
 
     $conn->set_charset('utf8mb4');
+    // Ensure MySQL session timezone matches PHP timezone (Asia/Manila)
+    // This makes CURDATE(), NOW(), and TIME() in SQL use +08:00 and prevents
+    // date-difference mismatches between PHP and MySQL when computing 'Today/Tomorrow'.
+    $conn->query("SET time_zone = '+08:00'");
     $GLOBALS['conn'] = $conn;
     return $conn;
 }

@@ -137,7 +137,7 @@ CREATE TABLE room_requests (
     StartTime TIME NOT NULL,
     EndTime TIME NOT NULL,
     NumberOfParticipants INT NOT NULL,
-    Status ENUM('pending', 'approved', 'rejected', 'cancelled') DEFAULT 'pending',
+    Status ENUM('pending', 'approved', 'rejected', 'cancelled', 'completed') DEFAULT 'pending',
     RejectionReason TEXT,
     ApprovedBy INT DEFAULT NULL,
     ApproverFirstName VARCHAR(128) DEFAULT NULL,
@@ -152,7 +152,7 @@ CREATE TABLE room_requests (
 );
 
 ALTER TABLE room_requests 
-MODIFY COLUMN Status ENUM('pending', 'approved', 'rejected', 'cancelled') DEFAULT 'pending';
+MODIFY COLUMN Status ENUM('pending', 'approved', 'rejected', 'cancelled', 'completed') DEFAULT 'pending';
 
 -- =========================
 -- Equipment
